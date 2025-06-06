@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Binary Risk Manager - Login</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+    }
+    .container {
+      max-width: 400px;
+      margin: 80px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0 16px;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    input[type="number"], input[disabled], input[type="password"], input[type="text"] {
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+    }
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-group button {
+      flex: 1;
+      font-size: 14px;
+    }
+    .win { background-color: #28a745; }
+    .loss { background-color: #dc3545; }
+    .reset { background-color: #6c757d; }
+  </style>
+</head>
+<body>
+
+<div class="container" id="loginPage">
+  <h2>Login</h2>
+  <input type="text" id="usernameInput" placeholder="Enter Username">
+  <input type="password" id="passwordInput" placeholder="Enter Password">
+  <button onclick="checkLogin()">Login</button>
+</div>
+
+<div class="container" id="appPage" style="display:none;">
+  <h2>Binary Risk Manager</h2>
+  <label>Initial Capital:</label>
+  <input type="number" id="capitalInput" value="10000" step="0.01">
+
+  <label>Next Trade Amount:</label>
+  <input type="text" id="tradeAmount" disabled>
+
+  <div class="btn-group">
+    <button class="win" onclick="handleTrade('win')">Win</button>
+    <button class="loss" onclick="handleTrade('loss')">Loss</button>
+  </div>
+
+  <button class="reset" onclick="resetAll()">Reset</button>
+
+  <div>
+    <p>Total Trades: <span id="tradeCount">0</span></p>
+    <p>Capital: ₹<span id="capitalDisplay">10000.00</span></p>
+  </div>
+</div>
+
+<script>
+  const USERNAME = "ADITYAKUMAR0001";
+  const PASSWORD = "89799";
+
+  function checkLogin() {
+    const username = document.getElementById("usernameInput").value;
+    const password = document.getElementById("passwordInput").value;
+    if (username === USERNAME && password === PASSWORD) {
+      document.getElementById("loginPage").style.display = "none";
+      document.getElementById("appPage").style.display = "block";
+      updateUI();
+    } else {
+      alert("Incorrect username or password");
+    }
+  }
+
+  let capital = 10000;
+  let lastTrade = 0;
+  let tradeCount = 0;
+  let recoveryMode = false;
+
+  function calcTrade() {
+    if (!recoveryMode) {
+      let base = capital * 0.01;
+      return +(base + base * 0.093).toFixed(2);
+    } else {
+      let doubled = lastTrade * 2;
+      return +(doubled + doubled * 0.093).toFixed(2);
+    }
+  }
+
+  function updateUI() {
+    const trade = calcTrade();
+    document.getElementById("tradeAmount").value = trade;
+    document.getElementById("capitalDisplay").innerText = capital.toFixed(2);
+    document.getElementById("tradeCount").innerText = tradeCount;
+  }
+
+  function handleTrade(result) {
+    const trade = calcTrade();
+    lastTrade = trade;
+    if (result === "win") {
+      capital += trade * 0.90;
+      recoveryMode = false;
+    } else {
+      capital -= trade;
+      recoveryMode = true;
+    }
+    tradeCount++;
+    document.getElementById("capitalInput").value = capital.toFixed(2);
+    updateUI();
+  }
+
+  function resetAll() {
+    capital = parseFloat(document.getElementById("capitalInput").value) || 10000;
+    lastTrade = 0;
+    tradeCount = 0;
+    recoveryMode = false;
+    updateUI();
+  }
+
+  document.getElementById("capitalInput").addEventListener("input", function() {
+    let val = parseFloat(this.value);
+    if (!isNaN(val)) {
+      capital = val;
+      updateUI();
+    }
+  });
+</script>
+
+</body>
+</html>
